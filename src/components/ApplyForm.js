@@ -8,7 +8,7 @@ function ApplyForm({ jobId }) {
     console.log("Form submitted"); // ✅ Check if this shows
     console.log("Job ID being used:", jobId);
     const payload = { email: formData.email }; // backend only needs email
-    fetch(`http://localhost:5063/api/jobs/${jobId}/apply`, {
+    fetch(`https://job-portal-backend-rqau.onrender.com/jobs${jobId}/apply`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

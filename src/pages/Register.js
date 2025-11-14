@@ -4,19 +4,24 @@ import "../Styles/Auth.css"; // ✅ Import CSS
 import { useNavigate } from "react-router-dom";
 
 function Register() {
-  const navigate=useNavigate();
-  const [user, setUser] = useState({ name: "", email: "", password: "", role: "User" });
+  const navigate = useNavigate();
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "User",
+  });
 
   const handleRegister = (e) => {
     e.preventDefault();
-    fetch("http://localhost:5063/api/auth/register", {
+    fetch("https://job-portal-backend-rqau.onrender.com/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user),
     })
       .then((res) => res.json())
       .then(() => alert("Registration successful!"));
-      navigate("/login");
+    navigate("/login");
   };
 
   return (

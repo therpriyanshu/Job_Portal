@@ -10,7 +10,7 @@ function Home() {
 
   // ✅ Fetch jobs from backend once
   useEffect(() => {
-    fetch("http://localhost:5063/api/jobs")
+    fetch("https://job-portal-backend-rqau.onrender.com/jobs")
       .then((res) => res.json())
       .then((data) => {
         console.log("✅ Jobs fetched for home:", data);

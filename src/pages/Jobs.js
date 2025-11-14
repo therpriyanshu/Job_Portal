@@ -14,7 +14,7 @@ function Jobs() {
 
   // ✅ Fetch jobs from your actual backend
   useEffect(() => {
-    fetch("http://localhost:5063/api/jobs")
+    fetch("https://job-portal-backend-rqau.onrender.com/jobs")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch jobs");
         return res.json();
