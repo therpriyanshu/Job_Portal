@@ -21,9 +21,9 @@ function App() {
         <Route path="/addjob" element={<AddJob />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/userdash" element={<UserDashoard/>}/>
-        <Route path="/admindash" element={<AdminDashboard/>}/>
-        <Route path="/profile" element={<Profile/>}/>
+        <Route path="/userdash" element={<UserDashoard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/jobs/:id" element={<JobDetails />} />
       </Routes>
     </>

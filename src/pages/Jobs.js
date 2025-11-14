@@ -1,74 +1,56 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import JobCard from "../components/JobCard";
-import "../Styles/Jobs.css"; // ✅ Import CSS
+import "../Styles/Jobs.css";
 
 function Jobs() {
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTitle, setSelectedTitle] = useState("All");
+  const location = useLocation();
 
+  // ✅ Extract search query from URL
+  const searchParams = new URLSearchParams(location.search);
+  const searchTerm = searchParams.get("search")?.toLowerCase() || "";
+
+  // ✅ Fetch jobs from your actual backend
   useEffect(() => {
     fetch("http://localhost:5063/api/jobs")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch jobs");
+        return res.json();
+      })
       .then((data) => {
+        console.log("✅ Jobs fetched:", data);
         setJobs(data);
-        setFilteredJobs(data);
-      });
+      })
+      .catch((err) => console.error("❌ Error fetching jobs:", err));
   }, []);
 
-  // 🔹 Extract Unique Job Titles (for filters)
-  const jobTitles = ["All", ...new Set(jobs.map((job) => job.title))];
-
-  // 🔹 Filter Jobs based on Search Input & Selected Title
+  // ✅ Filter jobs based on URL search term
   useEffect(() => {
-    let updatedJobs = jobs;
+    if (jobs.length === 0) return;
 
-    if (searchTerm) {
-      updatedJobs = updatedJobs.filter((job) =>
-        job.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+    const filtered = jobs.filter(
+      (job) =>
+        job.title.toLowerCase().includes(searchTerm) ||
+        job.company.toLowerCase().includes(searchTerm) ||
+        job.location.toLowerCase().includes(searchTerm)
+    );
 
-    if (selectedTitle !== "All") {
-      updatedJobs = updatedJobs.filter((job) => job.title === selectedTitle);
-    }
-
-    setFilteredJobs(updatedJobs);
-  }, [searchTerm, selectedTitle, jobs]);
+    console.log("🔍 Filtered Jobs:", filtered);
+    setFilteredJobs(filtered);
+  }, [searchTerm, jobs]);
 
   return (
     <div className="job-container">
       <h2>Available Jobs</h2>
 
-      {/* 🔹 Search Bar */}
-      <input
-        type="text"
-        placeholder="Search for jobs..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="search-input"
-      />
-
-      {/* 🔹 Dynamic Filter Buttons (Based on Job Titles) */}
-      <div className="filter-buttons">
-        {jobTitles.map((title) => (
-          <button
-            key={title}
-            className={selectedTitle === title ? "active" : ""}
-            onClick={() => setSelectedTitle(title)}
-          >
-            {title}
-          </button>
-        ))}
-      </div>
-
-      {/* 🔹 Job Listings */}
+      {/* Job List */}
       <div className="job-list">
         {filteredJobs.length > 0 ? (
           filteredJobs.map((job) => <JobCard key={job.id} job={job} />)
         ) : (
-          <p>No jobs found.</p>
+          <p>No jobs found for “{searchTerm}”.</p>
         )}
       </div>
     </div>

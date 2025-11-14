@@ -1,9 +1,43 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "../Styles/Home.css";
-import RecentJobs from "./RecentJobs";
 
 function Home() {
+  const [jobs, setJobs] = useState([]);
+  const [trendingJobs, setTrendingJobs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  // ✅ Fetch jobs from backend once
+  useEffect(() => {
+    fetch("http://localhost:5063/api/jobs")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("✅ Jobs fetched for home:", data);
+        setJobs(data);
+
+        // ✅ Set random 3 trending jobs only once
+        const random = [...data].sort(() => Math.random() - 0.5).slice(0, 3);
+        setTrendingJobs(random);
+      })
+      .catch((err) => console.error("❌ Error fetching jobs:", err));
+  }, []);
+
+  // ✅ Handle search (button or Enter)
+  const handleSearch = () => {
+    if (searchTerm.trim() === "") {
+      alert("Please enter a job title or company name");
+      return;
+    }
+    navigate(`/jobs?search=${encodeURIComponent(searchTerm)}`);
+  };
+
+  // ✅ Sort jobs by newest
+  const sortedJobs = [...jobs].sort((a, b) => b.id - a.id);
+
+  // ✅ Get latest 3 jobs
+  const latestJobs = sortedJobs.slice(0, 3);
+
   return (
     <div className="home-container">
       {/* Hero Section */}
@@ -11,33 +45,56 @@ function Home() {
         <h1>Find Your Dream Job</h1>
         <p>Explore thousands of jobs from top companies worldwide</p>
         <div className="search-bar">
-          <input type="text" placeholder="Search job title or company..." />
-          <button>🔍 Search</button>
+          <input
+            type="text"
+            placeholder="Search job title or company..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()} // ✅ Enter support
+          />
+          <button onClick={handleSearch}>🔍 Search</button>
         </div>
       </section>
 
-      {/* Trending Jobs */}
+      {/* ✅ Trending Jobs - Random 3 (fixed not to change on search) */}
       <section className="trending-jobs">
-        <h2>Trending Jobs</h2>
+        <h2>🔥 Trending Jobs</h2>
         <div className="jobs-grid">
-          <div className="job-card">
-            <h3>Software Engineer</h3>
-            <p>Google - New York, USA</p>
-            <Link to="/jobs">Apply Now</Link>
-          </div>
-          <div className="job-card">
-            <h3>UI/UX Designer</h3>
-            <p>Microsoft - Remote</p>
-            <Link to="/jobs">Apply Now</Link>
-          </div>
-          <div className="job-card">
-            <h3>Data Scientist</h3>
-            <p>Amazon - San Francisco, USA</p>
-            <Link to="/jobs">Apply Now</Link>
-          </div>
+          {trendingJobs.length > 0 ? (
+            trendingJobs.map((job) => (
+              <div key={job.id} className="job-card">
+                <h3>{job.title}</h3>
+                <p>
+                  {job.company} - {job.location}
+                </p>
+                <Link to={`/jobs/${job.id}`}>Apply Now</Link>
+              </div>
+            ))
+          ) : (
+            <p>No trending jobs available.</p>
+          )}
         </div>
       </section>
-      <RecentJobs/>
+
+      {/* ✅ Recent Jobs - Latest 3 */}
+      <section className="recent-jobs">
+        <h2>🕒 Recent Jobs</h2>
+        <div className="jobs-grid">
+          {latestJobs.length > 0 ? (
+            latestJobs.map((job) => (
+              <div key={job.id} className="job-card">
+                <h3>{job.title}</h3>
+                <p>
+                  {job.company} - {job.location}
+                </p>
+                <Link to={`/jobs/${job.id}`}>Apply Now</Link>
+              </div>
+            ))
+          ) : (
+            <p>No recent jobs available.</p>
+          )}
+        </div>
+      </section>
 
       {/* How It Works */}
       <section className="how-it-works">
@@ -63,12 +120,16 @@ function Home() {
         <div className="cta-box">
           <h2>Job Seekers</h2>
           <p>Find your dream job today.</p>
-          <Link to="/register" className="cta-btn">Get Started</Link>
+          <Link to="/register" className="cta-btn">
+            Get Started
+          </Link>
         </div>
         <div className="cta-box">
           <h2>For Employers</h2>
           <p>Post jobs & hire top talent.</p>
-          <Link to="/admin" className="cta-btn">Post a Job</Link>
+          <Link to="/admin" className="cta-btn">
+            Post a Job
+          </Link>
         </div>
       </section>
     </div>
